@@ -5,6 +5,7 @@ from inline_markdown import (
     split_nodes_link,
     extract_markdown_links,
     extract_markdown_images,
+    text_to_textnodes,
 )
 
 from textnode import (
@@ -150,19 +151,37 @@ class TestInlineMarkdown(unittest.TestCase):
 
     def test_split_links(self):
         node = TextNode(
-            "This is text with a [link](https://boot.dev) and [another link](https://blog.boot.dev) with text that follows",
+            "This is text with a [link](https://albertobenatti.com) and [another link](https://blog.albertobenatti.com) with text that follows",
             text_type_text,
         )
         new_nodes = split_nodes_link([node])
         self.assertListEqual(
             [
                 TextNode("This is text with a ", text_type_text),
-                TextNode("link", text_type_link, "https://boot.dev"),
+                TextNode("link", text_type_link, "https://albertobenatti.com"),
                 TextNode(" and ", text_type_text),
-                TextNode("another link", text_type_link, "https://blog.boot.dev"),
+                TextNode("another link", text_type_link, "https://blog.albertobenatti.com"),
                 TextNode(" with text that follows", text_type_text),
             ],
             new_nodes,
+        )
+    
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/some-image.png) and a [link](https://albertobenatti.com)"
+        self.assertListEqual(
+            [
+                TextNode("This is ", text_type_text),
+                TextNode("text", text_type_bold),
+                TextNode(" with an ", text_type_text),
+                TextNode("italic", text_type_italic),
+                TextNode(" word and a ", text_type_text),
+                TextNode("code block", text_type_code),
+                TextNode(" and an ", text_type_text),
+                TextNode("image", text_type_image, "https://storage.googleapis.com/some-image.png"),
+                TextNode(" and a ", text_type_text),
+                TextNode("link", text_type_link, "https://albertobenatti.com"),
+            ],
+            text_to_textnodes(text),
         )
 
 
